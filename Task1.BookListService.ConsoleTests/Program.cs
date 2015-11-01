@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Task1.BookListService.Models;
 using Task1.BookListService.Services;
 using static System.Console;
@@ -7,12 +9,20 @@ using static System.Console;
 namespace Task1.BookListService.ConsoleTests {
     class Program {
         static void Main(string[] args) {
-            TestBookListService();    
+            LoggingService.Instance.Log("\n\nProgram version " + Assembly.GetEntryAssembly().GetName().Version + " started. OS: " + Environment.OSVersion);
+            try {
+                TestBookListService();
+            } catch(Exception ex) {
+                LoggingService.Instance.Log(ex, "Error when working with book service");
+            }
+
         }
+        
         static void TestBookListService() {
             Services.BookListService service = new Services.BookListService(new BookRepository("books"));
 
-            if (service.Books?.Count == 0)
+            if(service.IsEmpty) {
+                LoggingService.Instance.Log("Service is empty. Add some books");
                 service.AddBooks(new List<Book> {
                     new Book("J. K. Rowling", "Harry Potter and the Prisoner of Azkaban", "Махаон", 528, 184100),
                     new Book("J. K. Rowling", "Harry Potter and the Philosopher's Stone", "МАХАОН", 432, 172100),
@@ -24,59 +34,50 @@ namespace Task1.BookListService.ConsoleTests {
                     new Book("Alexandre Dumas", "Le comte de Monte Cristo", "ACT", 1216, 166700),
                     new Book("Harper Lee", "To Kill a Mockingbird", "ACT", 416, 90100)
                 });
-
-            IEnumerable<Book> find = service.Find(book => book.PublishOrganization.ToLowerInvariant() == "махаон");
-            WriteLine("\tFind by publish organisation Махаон\n");
-
-            foreach (var book in find) {
-                WriteLine($"{book}\n");
             }
+            List<Book> find = service.Find(book => book.PublishOrganization.ToLowerInvariant() == "махаон");
+            LoggingService.Instance.Log("\tFind by publish organisation Махаон\n");
 
-            IEnumerable<Book> sort = service.Sort(book => book.Price);
-            WriteLine("\n\n\tSort by price\n");
-            foreach (var book in sort) {
-                WriteLine($"{book}\n");
-            }
+            LoggingService.Instance.Log(string.Join("\n", find.Select(book => book.ToString()).ToArray()));
+
+            List<Book> sort = service.Sort(book => book.Price);
+            LoggingService.Instance.Log("\n\n\tSort by price\n");
+            LoggingService.Instance.Log(string.Join("\n", sort.Select(book => book.ToString()).ToArray()));
 
             sort = service.Sort(book => book.PagesNumber);
-            WriteLine("\n\n\tSort by number of pages\n");
-            foreach (var book in sort) {
-                WriteLine($"{book}\n");
-            }
+            LoggingService.Instance.Log("\n\n\tSort by number of pages\n");
+            LoggingService.Instance.Log(string.Join("\n", sort.Select(book => book.ToString()).ToArray()));
 
-            WriteLine("\n\n\ttest exceptions\n");
+            LoggingService.Instance.Log("\n\n\ttest exceptions\n");
             try {
                 service.AddBook(new Book("Margaret Mitchell", "Gone with the Wind", "Эксмо", 1280, 173100));
             } catch (BookListServiceException ex) {
-                WriteLine(ex.Message);
+                LoggingService.Instance.Log(ex, "Exception when adding book");
             }
             try {
                 service.RemoveBook(new Book("Margaret Mitchell", "Gone with the Wind", "ACT", 1280, 173100));
             } catch (BookListServiceException ex) {
-                WriteLine(ex.Message);
+                LoggingService.Instance.Log(ex, "Exception when removing book");
             }
 
-            WriteLine("\n\n\tTest remove: 'Gone with the Wind' and '...the Prisoner of Azkaban'");
+            LoggingService.Instance.Log("\n\n\tTest remove: 'Gone with the Wind' and '...the Prisoner of Azkaban'");
             service.RemoveBook(new Book("Margaret Mitchell", "Gone with the Wind", "Эксмо", 1280, 173100));
             service.RemoveBook(new Book("J. K. Rowling", "Harry Potter and the Prisoner of Azkaban", "Махаон", 528, 184100));
 
-            foreach (var book in service.Books) {
-                WriteLine($"{book}\n");
-            }
+            LoggingService.Instance.Log(service.ToString());
 
-            WriteLine("\n\n\tTest add book: 'Gone with the Wind' and '...the Prisoner of Azkaban' and 'Godfather'");
+            LoggingService.Instance.Log("\n\n\tTest add book: 'Gone with the Wind' and '...the Prisoner of Azkaban' and 'Godfather'");
             service.AddBooks(new List<Book> {
                 new Book("Margaret Mitchell", "Gone with the Wind", "Эксмо", 1280, 173100),
                 new Book("J. K. Rowling", "Harry Potter and the Prisoner of Azkaban", "Махаон", 528, 184100),
                 new Book("Mario Puzo", "Godfather", "Айрис-пресс", 288, 256300)
             });
 
-            foreach (var book in service.Books) {
-                WriteLine($"{book}\n");
-            }
+            LoggingService.Instance.Log(service.ToString());
 
             service.RemoveBook(new Book("Mario Puzo", "Godfather", "Айрис-пресс", 288, 256300));
-
+            LoggingService.Instance.Log("Store service");
+            service.Store();
             ReadLine();
         }
     }

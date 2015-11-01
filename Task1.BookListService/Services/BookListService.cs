@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Task1.BookListService.Models;
 
 namespace Task1.BookListService.Services {
@@ -22,7 +23,9 @@ namespace Task1.BookListService.Services {
         private IRepository<Book> Repository { get; }
 
         /// <summary>Books, which store in service</summary>
-        public List<Book> Books { get; }
+        private List<Book> Books { get; }
+
+        public bool IsEmpty => Books?.Count == 0;
 
         public BookListService(IRepository<Book> repository) {
             Repository = repository;
@@ -35,6 +38,15 @@ namespace Task1.BookListService.Services {
         }
 
         #region Public methods
+
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            foreach (var book in Books) {
+                sb.Append($"{book}\n");
+            }
+            return sb.ToString();
+        }
+
         /// <summary>Add book to service
         /// <remarks>If the book already in service thrown <see cref="AddBookException"/></remarks>
         /// </summary>
@@ -71,18 +83,19 @@ namespace Task1.BookListService.Services {
                 throw new RemoveBookException($"BookListService doesn't contain {book}");
         }
 
+        /// <summary>Store books to to repository</summary>
         public void Store() {
             Repository.Store(Books);   
         }
 
         /// <summary>Sorts the elements in ascending order according to a key</summary>
         /// <param name="keySelector">A function to extract a key from an element</param>
-        /// <returns>A <see cref="IEnumerable{Book}"/> whose elements are sorted according to a key</returns>
-        public IEnumerable<Book> Sort(Func<Book, object> keySelector) => Books.OrderBy(keySelector);
+        /// <returns>A <see cref="List{Book}"/> whose elements are sorted according to a key</returns>
+        public List<Book> Sort(Func<Book, object> keySelector) => Books.OrderBy(keySelector).ToList();
         /// <summary>Retrieves all the element that match the conditions by the specified predicate</summary>
         /// <param name="match">The <see cref="Predicate{Book}"/> delegate that defines the conditions of the elements to search for</param>
-        /// <returns>A <see cref="IEnumerable{Book}"/> containing all the elements that match the conditions defined by the specified predicate, if found; otherwise, an empty <see cref="IEnumerable{Book}"/></returns>
-        public IEnumerable<Book> Find(Predicate<Book> match) => Books.FindAll(match);
+        /// <returns>A <see cref="List{Book}"/> containing all the elements that match the conditions defined by the specified predicate, if found; otherwise, an empty <see cref="List{Book}"/></returns>
+        public List<Book> Find(Predicate<Book> match) => Books.FindAll(match).ToList();
 
         #endregion
     }

@@ -12,7 +12,6 @@ namespace Task1.BookListService.Models {
         public double Price { get; }
         #endregion
 
-
         public Book(string author, string title, string publishOrganization, int pagesNumber, double price) {
             Author = author;
             Title = title;
@@ -21,13 +20,11 @@ namespace Task1.BookListService.Models {
             Price = price;
         }
 
-
         #region Public Methods
         public int CompareTo(Book other) {
             if (other == null) return 1;
             return PagesNumber.CompareTo(other.PagesNumber);
         }
-
 
         public override bool Equals(object obj) {
             if (ReferenceEquals(null, obj)) return false;

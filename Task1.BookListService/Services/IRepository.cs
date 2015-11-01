@@ -6,7 +6,7 @@ namespace Task1.BookListService.Services {
         /// <summary>Load all items from repository</summary>
         /// <returns>All items from repository</returns>
         List<T> Load();
-        /// <summary>Clear repository and add new books to repository</summary>
+        /// <summary>Clear repository and add books to repository</summary>
         void Store(IEnumerable<T> books);
     }
 }
