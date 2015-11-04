@@ -9,7 +9,7 @@ namespace Task3.ArraySort {
             Sort(array, comparator.Compare);
         }
 
-        public override void Sort<T>(T[] array, Compare<T> compare) {
+        public void Sort<T>(T[] array, Comparison<T> compare) {
             if (array == null)
                 throw new ArgumentNullException(nameof(array));
             if (compare == null)

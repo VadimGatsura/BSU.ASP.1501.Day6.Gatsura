@@ -5,8 +5,6 @@ using System.Linq;
 namespace Task2.GCD {
     public static class GCD {
 
-        private delegate long GCDAlgorithm(long a, long b);
-
         #region Public Methods
 
         #region Euclidean
@@ -80,7 +78,7 @@ namespace Task2.GCD {
         #endregion
 
         #region Private Methods
-        private static long Calculate(GCDAlgorithm algorithm, out long ticks, params long[] array) {
+        private static long Calculate(Func<long, long, long> algorithm, out long ticks, params long[] array) {
             if (array == null)
                 throw new ArgumentNullException(nameof(array));
             long result = 0;
@@ -93,7 +91,7 @@ namespace Task2.GCD {
             return result;
         }
 
-        private static long Calculate(long a, long b, GCDAlgorithm algorithm) {
+        private static long Calculate(long a, long b, Func<long, long, long> algorithm) {
             if (a < 0)
                 a *= -1;
             if (b < 0)
@@ -106,7 +104,7 @@ namespace Task2.GCD {
             return b == 0 ? a : algorithm(a, b);
         }
 
-        private static long Calculate(long a, long b, out long ticks, GCDAlgorithm algorithm) {
+        private static long Calculate(long a, long b, out long ticks, Func<long, long, long> algorithm) {
             Stopwatch timer = new Stopwatch();
             timer.Start();
             long result = Calculate(a,b, algorithm);
@@ -115,7 +113,7 @@ namespace Task2.GCD {
             return result;
         }
 
-        private static long Calculate(GCDAlgorithm algorithm, params long[] array) {
+        private static long Calculate(Func<long, long, long> algorithm, params long[] array) {
             if (array == null)
                 throw new ArgumentNullException(nameof(array));
             return array.Aggregate<long, long>(0, (a,b) => Calculate(a, b, algorithm));

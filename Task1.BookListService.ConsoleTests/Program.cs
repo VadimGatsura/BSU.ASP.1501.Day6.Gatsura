@@ -19,21 +19,28 @@ namespace Task1.BookListService.ConsoleTests {
         }
         
         static void TestBookListService() {
-            Services.BookListService service = new Services.BookListService(new BookRepository("books"));
+            Services.BookListService service = new Services.BookListService();
 
             if(service.IsEmpty) {
-                LoggingService.Instance.Log("Service is empty. Add some books");
-                service.AddBooks(new List<Book> {
-                    new Book("J. K. Rowling", "Harry Potter and the Prisoner of Azkaban", "Махаон", 528, 184100),
-                    new Book("J. K. Rowling", "Harry Potter and the Philosopher's Stone", "МАХАОН", 432, 172100),
-                    new Book("Stephen King", "The Green Mile", "ACT", 384, 106100),
-                    new Book("Margaret Mitchell", "Gone with the Wind", "Эксмо", 1280, 173100),
-                    new Book("Arthur Conan Doyle", "A Study in Scarlet", "ACT", 304, 123700),
-                    new Book("George Martin", "A Storm of Swords", "ACT", 960, 127300),
-                    new Book("Борис Васильев", "А зори здесь тихие...", "Мартин", 432, 102200),
-                    new Book("Alexandre Dumas", "Le comte de Monte Cristo", "ACT", 1216, 166700),
-                    new Book("Harper Lee", "To Kill a Mockingbird", "ACT", 416, 90100)
-                });
+                LoggingService.Instance.Log("Service is empty. Try to load from repositoty");
+                service.Load(new BookRepository("book"));
+                if(service.IsEmpty) {
+                    LoggingService.Instance.Log("Service is empty. Try to add some books");
+                    service.AddBooks(new List<Book> {
+                        new Book("J. K. Rowling", "Harry Potter and the Prisoner of Azkaban", "Махаон", 528, 184100),
+                        new Book("J. K. Rowling", "Harry Potter and the Philosopher's Stone", "МАХАОН", 432, 172100),
+                        new Book("Stephen King", "The Green Mile", "ACT", 384, 106100),
+                        new Book("Margaret Mitchell", "Gone with the Wind", "Эксмо", 1280, 173100),
+                        new Book("Arthur Conan Doyle", "A Study in Scarlet", "ACT", 304, 123700),
+                        new Book("George Martin", "A Storm of Swords", "ACT", 960, 127300),
+                        new Book("Борис Васильев", "А зори здесь тихие...", "Мартин", 432, 102200),
+                        new Book("Alexandre Dumas", "Le comte de Monte Cristo", "ACT", 1216, 166700),
+                        new Book("Harper Lee", "To Kill a Mockingbird", "ACT", 416, 90100)
+                    });
+                }
+                LoggingService.Instance.Log("Store books to repository 'b'");
+                service.Store(new BookRepository("b"));
+                
             }
             List<Book> find = service.Find(book => book.PublishOrganization.ToLowerInvariant() == "махаон");
             LoggingService.Instance.Log("\tFind by publish organisation Махаон\n");
@@ -76,8 +83,8 @@ namespace Task1.BookListService.ConsoleTests {
             LoggingService.Instance.Log(service.ToString());
 
             service.RemoveBook(new Book("Mario Puzo", "Godfather", "Айрис-пресс", 288, 256300));
-            LoggingService.Instance.Log("Store service");
-            service.Store();
+            LoggingService.Instance.Log("Store books to repository 'book'");
+            service.Store(new BookRepository("book"));
             ReadLine();
         }
     }

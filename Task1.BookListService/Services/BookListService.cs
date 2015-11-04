@@ -20,22 +20,25 @@ namespace Task1.BookListService.Services {
 
 
     public sealed class BookListService {
-        private IRepository<Book> Repository { get; }
 
         /// <summary>Books, which store in service</summary>
         private List<Book> Books { get; }
 
         public bool IsEmpty => Books?.Count == 0;
 
-        public BookListService(IRepository<Book> repository) {
-            Repository = repository;
-            try {
-                Books = Repository.Load();
-            } catch(Exception ex) {
-                throw new BookListServiceException("Incorrect realization of repository", ex);
-            }
-            
+        #region Constructors
+        public BookListService() {
+            Books = new List<Book>();            
         }
+
+        public BookListService(IEnumerable<Book> books) {
+            Books = books.ToList();
+        }
+
+        public BookListService(IRepository<Book> repository) {
+            Books = repository.Load();
+        }
+        #endregion
 
         #region Public methods
 
@@ -83,9 +86,17 @@ namespace Task1.BookListService.Services {
                 throw new RemoveBookException($"BookListService doesn't contain {book}");
         }
 
+        public void Load(IRepository<Book> repository) {
+            try {
+                Books.AddRange(repository.Load());
+            } catch(Exception ex) {
+                throw new BookListServiceException("Incorrect realization of repository", ex);
+            }
+        }
+
         /// <summary>Store books to to repository</summary>
-        public void Store() {
-            Repository.Store(Books);   
+        public void Store(IRepository<Book> repository) {
+            repository.Store(Books);   
         }
 
         /// <summary>Sorts the elements in ascending order according to a key</summary>
