@@ -28,24 +28,9 @@ namespace Task3.ArraySort {
                 throw new ArgumentNullException(nameof(array));
             if(comparator == null) {
                 if(typeof(T).IsSubclassOf(typeof(IComparable))) {
-                    //IComparable[] arr = array.Cast<IComparable>().ToArray();
-                    for (int i = array.Length - 1; i > 0; i--) {
-                        for (int j = 0; j < i; j++) {
-                            var comparable = array[j] as IComparable;
-                            if ( comparable != null && comparable.CompareTo(array[j + 1]) > 0) {
-                                Swap(ref array[j], ref array[j + 1]);
-                            }
-                        }
-                    }
+                    Sort<IComparable>(array);
                 } else if(typeof(T).IsSubclassOf(typeof(IComparable<T>))) {
-                    for (int i = array.Length - 1; i > 0; i--) {
-                        for (int j = 0; j < i; j++) {
-                            var comparable = array[j] as IComparable<T>;
-                            if (comparable != null && comparable.CompareTo(array[j + 1]) > 0) {
-                                Swap(ref array[j], ref array[j + 1]);
-                            }
-                        }
-                    }
+                    Sort<IComparable<T>>(array);
                 }
                 throw new ArgumentException($"Argument {nameof(comparator)} is null and Generic Type {typeof(T)} don't implement any of interfaces IComparable and IComparable<T>");
             }
@@ -62,13 +47,15 @@ namespace Task3.ArraySort {
 
         #region Private Methods
 
-        private void Sort<T>(T[] array, Type type) {
+        private void Sort<T>(Array array) {
             for (int i = array.Length - 1; i > 0; i--) {
                 for (int j = 0; j < i; j++) {
-                    /*var comparable = (type) array[j];
-                    if (comparable != null && comparable.CompareTo(array[j + 1]) > 0) {
-                        Swap(ref array[j], ref array[j + 1]);
-                    }*/
+                    dynamic comparable = (T) array.GetValue(j);
+                    if (comparable != null && comparable.CompareTo(array.GetValue(j + 1)) > 0) {
+                        var bufferArray = array.GetValue(j);
+                        array.SetValue(array.GetValue(j + 1), j);
+                        array.SetValue(bufferArray, j + 1);
+                    }
                 }
             }
         }
